@@ -21,6 +21,16 @@ app.get('/webhook', function (req, response) {
   }
 })
 
+app.post('/webhook/', function(req, res){
+  const webhook_event = req.body.entry[0]
+  if (webhook_event.messaging) {
+    webhook_event.messaging.forEach(event => {
+      console.log(event);
+    })
+  }   
+  res.sendStatus(200)
+})
+
 app.listen(app.get('port'), function () {
   console.log('Nuestro servidor esta funcionando en el puerto', app.get('port'));
   
