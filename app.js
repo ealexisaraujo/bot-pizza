@@ -34,7 +34,14 @@ app.post('/webhook/', function(req, res){
 
 function handleEvent(senderId, event) {
   if (event.message) {
-    handleMessage(senderId, event.message)
+    // handleMessage(senderId, event.message)
+    if (event.message.quick_reply) {
+      handlePostBack(senderId, event.message.quick_reply.payload)
+    } else {
+      handleMessage(senderId, event.message)
+    }
+  } else if (event.postback) {
+    handlePostBack(senderId, event.postback.payload)
   } 
 }
 
@@ -54,6 +61,22 @@ function defaultMessage(senderId) {
     }
   }
   callSendApi(messageData)
+}
+
+function handlePostBack(senderId, payload) {
+  switch (payload) {
+    case "GET_STARTED_PUGPIZZA":
+        console.log(payload)
+    break;
+  
+    case "ABOUT_PAYLOAD":
+        console.log(payload)
+    break;
+
+    case "PIZZAS_PAYLOAD":
+        console.log(payload)
+    break;
+  }
 }
 
 function callSendApi(response) {
