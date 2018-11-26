@@ -79,6 +79,7 @@ function defaultMessage(senderId) {
 }
 
 function handlePostBack(senderId, payload) {
+  console.log(payload)
   switch (payload) {
     case "GET_STARTED_PUGPIZZA":
         console.log(payload)
@@ -89,7 +90,7 @@ function handlePostBack(senderId, payload) {
     break;
 
     case "PIZZAS_PAYLOAD":
-        console.log(payload)
+        showPizzas(senderId)
     break;
   }
 }
@@ -124,7 +125,7 @@ function handleAttachments(senderId, event) {
 
 function callSendApi(response) {
   request({
-    "uri": "https://graph.facebook.com/me/messages/",
+    "uri": "https://graph.facebook.com/me/messages",
     "qs":{
       "access_token": access_token
     },
@@ -138,6 +139,49 @@ function callSendApi(response) {
       console.log("Mensaje enviado");
     }
   })
+}
+
+function showPizzas(senderId) {
+  const messageData = {
+    "recipient": {
+      "id": senderId
+  },
+    "message": {
+      "attachment": {
+        "type": "template",
+        "payload": {
+          "template_type": "generic",
+          "elements": [
+            {
+              "title" : "Peperoni",
+              "subtitle": "Con todo el sabor del peperoni",
+              "image_url": "https://s3.amazonaws.com/chewiekie/img/productos-pizza-peperoni-champinones.jpg",
+              "buttons": [
+                {
+                  "type": "postback",
+                  "title": "Elegir Pepperoni",
+                  "payload": "PEPPERONI_PAYLOAD"
+                }
+              ]
+            },
+            {
+              "title" : "Pollo BBQ",
+              "subtitle": "Con todo el sabor del BBQ",
+              "image_url": "https://s3.amazonaws.com/chewiekie/img/productos-pizza-peperoni-champinones.jpg",
+              "buttons": [
+                {
+                  "type": "postback",
+                  "title": "Elegir BBQ",
+                  "payload": "BBQ_PAYLOAD"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  }
+  callSendApi(messageData)
 }
 
 app.listen(app.get('port'), function () {
