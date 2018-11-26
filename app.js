@@ -1,9 +1,14 @@
 'use strict'
 
+const prettyjson = require('prettyjson');
 const express = require('express')
 const bodyParser = require('body-parser')
 const request = require('request')
 const access_token = "EAAD39wZC2ZAl8BAJcMTPix4XEQMq6UHXxTAkAf0WV0KuD8n3uUgXmeLzxzUSVPUo4shKOHyqIKwhlGmwF3MpBionDvDSvAxjNVkbDmXPUCw26nOkHsVurKCyRAwnR7CawPseC7IXcaDEZBFnbzceEvILGrhfmqpjg3Hx1qyTQZDZD"
+const verify_token_fb = 'pugpizza_token'
+
+// const access_token = "token creado en fb developer"
+// const verify_token_fb = 'cualquier nombre al token'
 
 const app = express()
 
@@ -15,7 +20,7 @@ app.get('/', function(req, response) {
 })
 
 app.get('/webhook', function (req, response) {
-  if (req.query['hub.verify_token']==='pugpizza_token') {
+  if (req.query['hub.verify_token']=== verify_token_fb) {
     response.send(req.query['hub.challenge'])
   } else {
     response.send('Pug pizza no tienes permisos')
@@ -50,7 +55,8 @@ function handleMessage(senderId, event) {
     // defaultMessage(senderId)
     // contactSupport(senderId)
     // showLocations(senderId)
-    receipt(senderId)
+    //receipt(senderId)
+    getLocation(senderId)
   } else if (event.attachments) {
     handleAttachments(senderId, event)
   }
@@ -71,7 +77,7 @@ function defaultMessage(senderId) {
         },
         {
             "content_type": "text",
-            "title": "Acerca de",
+            "title": "Contacta Soporte",
             "payload": "ABOUT_PAYLOAD"
         }
       ]
@@ -85,11 +91,11 @@ function handlePostBack(senderId, payload) {
   console.log(payload)
   switch (payload) {
     case "GET_STARTED_PUGPIZZA":
-        console.log(payload)
+      defaultMessage(senderId)
     break;
   
     case "ABOUT_PAYLOAD":
-        console.log(payload)
+      contactSupport(senderId)
     break;
 
     case "PIZZAS_PAYLOAD":
@@ -98,6 +104,18 @@ function handlePostBack(senderId, payload) {
 
     case "PEPPERONI_PAYLOAD":
         sizePizza(senderId)
+    break;
+
+    case "PERSONAL_SIZE_PAYLOAD":
+        receipt(senderId)
+    break;
+
+    case "LOCATIONS_PAYLOAD":
+    showLocations(senderId)
+    break;
+
+    case "CONTACT_PAYLOAD":
+    contactSupport(senderId)
     break;
   }
 }
@@ -126,6 +144,9 @@ function handleAttachments(senderId, event) {
     break;
     case "file":
             console.log(attachment_type);
+    break;
+    case "location":
+            console.log(prettyjson.render(event));
     break;
   }
 }
@@ -333,14 +354,14 @@ function receipt(senderId) {
               "type": "template",
               "payload": {
                   "template_type": "receipt",
-                  "recipient_name": "Oscar Barajas",
+                  "recipient_name": "Alexis Araujo",
                   "order_number": "123123",
                   "currency": "MXN",
                   "payment_method": "Efectivo",
                   "order_url": "https://platzi.com/order/123",
                   "timestamp": "123123123",
                   "address": {
-                      "street_1": "Platzi HQ",
+                      "street_1": "Casa Alexis",
                       "street_2": "---",
                       "city": "Mexico",
                       "postal_code": "543135",
@@ -382,6 +403,23 @@ function receipt(senderId) {
       }
   }
   callSendApi(messageData);
+}
+
+function getLocation(senderId) {
+  const messageData = {
+    "recipient": {
+      "id": senderId
+    },
+    "message": {
+      "text": "Ahora ¿Puedes proporcionarnos tu ubicacion?",
+      "quick_replies": [
+        {
+          "content_type": "location"
+        }
+      ]
+    }
+  }
+  callSendApi(messageData)
 }
 
 app.listen(app.get('port'), function () {
