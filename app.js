@@ -12,7 +12,8 @@ const verify_token_fb = 'pugpizza_token'
 
 const app = express()
 
-app.set('port', 5000)
+// app.set('port', 5000)
+app.set('port', (process.env.PORT || 5000))
 app.use(bodyParser.json())
 
 app.get('/', function(req, response) {
