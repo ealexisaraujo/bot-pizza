@@ -84,3 +84,4 @@ typings/
 # End of https://www.gitignore.io/api/node
 node_modules
 npm-debug.log
+package-lock.json
